@@ -1,0 +1,49 @@
+--------------------------------------------------------------------------
+sjpcm.txt - Quick SjPCM documentation. (c) Nick Van Veen (aka Sjeep), 2002
+--------------------------------------------------------------------------
+
+The SjPCM IRX module will play a stream of PCM data with the PS2 SPU2.
+Direct communication to the SPU2 is done through the LIBSD irx module,
+which must be loaded before sjpcm.irx. An example of how to do this is
+given below. This assumes that you will be linking your program with
+ps2lib (cvs version is required at the moment).
+
+void LoadModules(void)
+{
+    int ret;
+
+	ret = sif_load_module("rom0:LIBSD", 0, NULL);
+	if (ret < 0) {
+			printf("Failed to load module: LIBSD");
+			k_SleepThread();
+    }
+
+	ret = sif_load_module("host:SJPCM.IRX", 0, NULL);
+	if (ret < 0) {
+			printf("Failed to load module: SJPCM.IRX");
+			k_SleepThread();
+    }
+
+}
+
+If sjpcm.irx was loaded successfully, you may then call SjPCM_Init() to
+initialise the module on the iop. SjPCM is designed to be sent pcm data
+every frame. On a pal system, send 960 samples per frame. On an ntsc system,
+send 800 samples per frame. The format of the PCM is: 16-bit signed pcm, at
+48000Hz. PCM is sent to SjPCM with the SjPCM_Enqueue() function.
+
+void SjPCM_Enqueue(short *left, short *right, int size, int wait);
+
+- left/right are pointers to the left/right pcm data.
+- size is the amount of *samples* to be sent.
+- set wait to 1 if you want the function to wait for each dma transfer to end
+  (seperate transfer for left & right buffers).
+
+Other functions:
+
+int SjPCM_Init(); - Initialise SjPCM. Do not call more than once.
+void SjPCM_Puts(char *format, ...); - Executes a printf on iop.
+void SjPCM_Play(); - Resume sound output.
+void SjPCM_Pause(); - Suspend sound output.
+void SjPCM_Setvol(unsigned int volume); - Set PCM volume. Valid values are 0-0x3fff.
+void SjPCM_Clearbuff(); - Clear the sound buffers on iop.
