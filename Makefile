@@ -3,7 +3,7 @@
 LIBDIR      = $(PS2LIB)/ee/lib
 INCLUDES    = -I$(PS2LIB)/common/include -I$(PS2LIB)/ee/include -I$(PS2LIB)/ee/lib/gcc-lib/mips64r5900-sce-elf/2.9-ee-991111b/include
 
-OBJS        = main.o hw.o hardware.o pad.o loadmodule.o
+OBJS        = main.o hardware.o pad.o loadmodule.o sjpcm_rpc.o hw.o 
 
 LCFILE      = linkfile
 
@@ -49,10 +49,13 @@ hw.o:
 
 .c.o:
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $*.o 
-	#>$*.lst
 
 .cc.o:
 	$(CC) $(CXXFLAGS) $(INCLUDES) -c $< -o $*.o > $*.lst
 
 clean:
 	$(RM) *.o *.map *.lst core *.dis *.elf
+	#>$*.lst
+
+
+#OBJS        = main.o hw.o hardware.o pad.o loadmodule.o

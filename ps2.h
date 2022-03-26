@@ -15,19 +15,23 @@ extern "C" {
 #endif
 
 
-//#define	MASTER				// set this when building a CD version (final)
-//#define	USESOUND				// If you use this, you can't "reset" via NAPLINK, must be a PS2 reset
-
+//#define		MASTER				// set this when building a CD version (final)
+#define		SOUND				// set this when building a CD version (final)
 
 #ifdef	MASTER
-#define	FILESYS		"cdrom0:"
-#define	FILESYS_E	";1"
+#define	FILESYS		"cdrom0:\\"
+#define	FILEEND		";1"
 #else
 #define	FILESYS		"host:"
-#define	FILESYS_E
+#define	FILEEND
 #endif
 
 
+
+#define	STATE_GAME		(0)
+#define	STATE_FE		(1)
+#define	STATE_INITFE	(2)
+#define	STATE_INITGAME	(3)
 
 //
 // Bigboy's "types" These are much nicer, shorter and more "cross-platform"
@@ -103,8 +107,7 @@ typedef	signed char			*PS8;
 
 
 //
-// Currently known System defines taken from various samples. 
-// Please note: Some are multiply defined and are not "clear cut". This should improve with time.
+// System defines taken from PS2 Linux Samples by SmEg - Thanks!
 //
 
 #define TIMER0	        				((volatile unsigned int*)0x10000000)
@@ -283,9 +286,8 @@ typedef union {
 #define GS_SET_XYZ(x, y, z) \
 	((u64)(x) | ((u64)(y) << 16) | ((u64)(z) << 32))
 
-	//	loop, end, pre, prim, flg, nreg
-#define GIF_SET_TAG(loop, end, pre, prim, flg, nreg) \
-	((long)(loop) | ((long)(end)<<15) | ((long)(pre) << 46) |  \
+#define GIF_SET_TAG(nloop, eop, pre, prim, flg, nreg) \
+	((long)(nloop) | ((long)(eop)<<15) | ((long)(pre) << 46) |  \
 	((long)(prim)<<47) | ((long)(flg)<<58)  | ((long)(nreg)<<60)	)
 
 
@@ -436,10 +438,6 @@ typedef	struct SQuadPoly{
 #define	BLUE					(0xff0000)
 #define	GREEN					(0x00ff00)
 
-
-//
-// Timing BAR stuff, switches off in MASTER mode
-//
 #ifdef	MASTER
 #define	TBAR(a)
 #define	TBAR_RGB(r,g,b)
@@ -447,19 +445,6 @@ typedef	struct SQuadPoly{
 #define	TBAR(a)					*GS_BGCOLOR = a
 #define	TBAR_RGB(r,g,b)			*GS_BGCOLOR = (r|(g<<8)|(b<<16))
 #endif
-
-
-
-//
-// No defines for these is PS2LIB yet!
-// 
-extern	int printf(char *format, ...);
-extern	int sprintf(const char* pDest, char *format, ...);
-extern	int	fio_open( u8 *fname, int mode);
-extern	int	fio_close( int fd);
-extern	int	fio_read( int fd, void *buff, int buff_size);
-extern	int	fio_lseek( int fd, u32 pos, int mode);
-
 
 #ifdef __cplusplus
 }

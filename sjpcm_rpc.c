@@ -32,21 +32,22 @@
 
 #include <tamtypes.h>
 #include <kernel.h>
-#include <nprintf.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sifrpc.h>
 #include <stdarg.h>
 #include "sjpcm.h"
+//#include "printf.h"
 
-static unsigned sbuff[64] __attribute__((aligned (64)));
+static unsigned sbuff[64] __attribute__((__section__(".bss"))) __attribute__((aligned(64)));
+//__attribute__((aligned (64)));
 static struct t_rpc_client_data cd0;
 
 int sjpcm_inited = 0;
 int pcmbufl, pcmbufr;
 int bufpos;
 
-void SjPCM_Puts(char *format, ...)
+/*void SjPCM_Puts(char *format, ...)
 {
 	static char buff[4096];
     va_list args;
@@ -59,7 +60,7 @@ void SjPCM_Puts(char *format, ...)
 
 	memcpy((char*)(&sbuff[0]),buff,252);
 	sif_call_rpc(&cd0,SJPCM_PUTS,0,(void*)(&sbuff[0]),252,(void*)(&sbuff[0]),252,0,0);
-}
+}*/
 
 void SjPCM_Play()
 {
@@ -90,7 +91,7 @@ void SjPCM_Clearbuff()
 	sif_call_rpc(&cd0,SJPCM_CLEARBUFF,0,(void*)(&sbuff[0]),0,(void*)(&sbuff[0]),0,0,0);
 }
 
-int SjPCM_Init()
+int SjPCM_Init( void )
 {
 	int i;
 /*
@@ -101,7 +102,8 @@ int SjPCM_Init()
         nopdelay();
     } while(!cd0.server);
 */
-	while(1){
+	while(1)
+	{
 		if (sif_bind_rpc( &cd0, SJPCM_IRX, 0) < 0) return -1; // bind error
  		if (cd0.server != 0) break;
     	i = 0x10000;
@@ -111,7 +113,6 @@ int SjPCM_Init()
 	sif_call_rpc(&cd0,SJPCM_INIT,0,(void*)(&sbuff[0]),64,(void*)(&sbuff[0]),64,0,0);
 
 	k_FlushCache(0);
-
 	pcmbufl = sbuff[1];
 	pcmbufr = sbuff[2];
 	bufpos = sbuff[3];
